@@ -114,11 +114,15 @@ def set_path_var(mode, paths):
     _winreg.FlushKey(hKey)
     hKey.Close()
 
-    # Notify system of PATH change
-    SendMessage = ctypes.windll.user32.SendMessageW
+    # Notify system of PATH change. Use SendMessageTimeout instead of
+    # SendMessage because with Python 3 it hangs awaiting for response
+    # that never comes
+    SendMessageTimeout = ctypes.windll.user32.SendMessageTimeoutW
     HWND_BROADCAST = 0xFFFF
     WM_SETTINGCHANGE = 0x1A
-    SendMessage(HWND_BROADCAST, WM_SETTINGCHANGE, 0, u'Environment')
+    SMTO_ABORTIFHUNG = 0x2
+    SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0, u'Environment',
+        SMTO_ABORTIFHUNG, 500)
 
 
 def normalize_paths(paths):
