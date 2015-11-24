@@ -185,11 +185,21 @@ def remove_invalid_paths(mode, paths):
 
     return valid_paths
 
-# For capitalizing words `usage` and `optional` in help output
-argparse._ = lambda s: {"usage: ": "Usage: ", "optional arguments": "Optional arguments"}.get(s, s)
 
-parser = argparse.ArgumentParser(description="Modify user or system PATH variable.",
-    usage="%(prog)s [OPTIONS] [PATH|INDEX]",
+# For customizing error output
+class ArgumentParser(argparse.ArgumentParser):
+    def error(self, msg):
+        sys.stderr.write('Error: {}\n'.format(msg))
+        self.print_help()
+        sys.exit(2)
+
+
+# For capitalizing of certian words in help output
+argparse._ = lambda s: {"usage: ": "Usage: ", "optional arguments": "Optional arguments", 
+    "show this help message and exit": "Show this help message and exit"}.get(s, s)
+
+parser = ArgumentParser(description="Modify user or system PATH variable.",
+    usage="%(prog)s OPTIONS [PATH|INDEX]",
     epilog="Written by Oleg Mitrofanov (http://www.wryway.com/) (c) 2015. "
     "Inspired by Gerson Kurz's pathed tool (http://p-and-q.com).")
 
@@ -198,7 +208,7 @@ mode_group.add_argument("-u", "--user", help="Operate on current user PATH varia
     action="store_true")
 mode_group.add_argument("-s", "--system", help="Operate on system PATH variable",
     action="store_true")
-mode_operation = parser.add_mutually_exclusive_group()
+mode_operation = parser.add_mutually_exclusive_group(required=True)
 mode_operation.add_argument("-a", "--append", help="Append directory path to "
     "PATH variable", metavar="PATH", type=is_dir_path)
 mode_operation.add_argument("-p", "--prepend", help="Prepend directory path to "
