@@ -122,7 +122,7 @@ def set_path_var(mode, paths):
     WM_SETTINGCHANGE = 0x1A
     SMTO_ABORTIFHUNG = 0x2
     SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0, u'Environment',
-        SMTO_ABORTIFHUNG, 500)
+        SMTO_ABORTIFHUNG, 500, None)
 
 
 def normalize_paths(paths):
